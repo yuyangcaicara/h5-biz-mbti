@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>你是哪种苦命老板</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+  background:#0f0f14;color:#fff;-webkit-font-smoothing:antialiased}
+#app{max-width:420px;margin:0 auto;min-height:100vh}
+
+/* 首页 */
+.home{padding:48px 24px 40px;text-align:center;
+  background:linear-gradient(180deg,#0f0f14 0%,#1a1a2e 100%)}
+.home-badge{display:inline-block;font-size:11px;color:#fbbf24;font-weight:600;
+  background:rgba(251,191,36,.12);padding:4px 14px;border-radius:20px;margin-bottom:20px;
+  border:1px solid rgba(251,191,36,.2)}
+.home-title{font-size:28px;font-weight:800;line-height:1.4;margin-bottom:10px;
+  background:linear-gradient(135deg,#fff,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.home-desc{font-size:14px;color:#888;line-height:1.8;margin-bottom:24px}
+
+/* 题目区 */
+.questions{padding:0 20px 20px}
+.q-block{margin-bottom:18px}
+.q-label{font-size:14px;font-weight:700;color:#eee;margin-bottom:10px;line-height:1.5}
+.q-num{color:#fbbf24;margin-right:4px}
+.q-opts{display:flex;flex-direction:column;gap:8px}
+.q-opt{padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(255,255,255,.08);font-size:13px;color:#bbb;line-height:1.4;
+  cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.q-opt:active{transform:scale(.98)}
+.q-opt.selected{border-color:#fbbf24;background:rgba(251,191,36,.1);color:#fbbf24}
+
+/* 提交 */
+.submit-wrap{padding:0 20px 32px}
+.submit-btn{display:block;width:100%;padding:16px;border-radius:50px;font-size:16px;
+  font-weight:700;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:all .3s;background:#333;color:#666;pointer-events:none}
+.submit-btn.active{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f0f14;
+  pointer-events:auto;box-shadow:0 4px 20px rgba(251,191,36,.3)}
+.submit-btn.active:active{transform:scale(.97)}
+
+/* 结果页 */
+.result{display:none;padding:32px 20px 40px;
+  background:linear-gradient(180deg,#0f0f14 0%,#1a1a2e 50%,#0f0f14 100%);
+  animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+.res-header{text-align:center;margin-bottom:24px}
+.res-emoji{font-size:48px;margin-bottom:6px}
+.res-code{font-size:32px;font-weight:900;color:#fbbf24;letter-spacing:5px;margin-bottom:6px;
+  text-shadow:0 0 30px rgba(251,191,36,.3)}
+.res-type{font-size:16px;font-weight:600;color:#ccc;margin-bottom:8px}
+.res-tagline{font-size:13px;color:#888;font-style:italic;margin-bottom:16px}
+.res-stats{display:flex;justify-content:center;gap:24px}
+.res-stat-val{font-size:18px;font-weight:700;color:#fbbf24}
+.res-stat-label{font-size:11px;color:#666;margin-top:2px}
+
+/* 综述 */
+.res-summary{padding:18px;border-radius:16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);margin-bottom:16px}
+.res-summary-title{font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:10px}
+.res-summary-text{font-size:13px;color:#bbb;line-height:1.8}
+
+/* 优劣势 */
+.res-pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.res-pc-card{padding:14px;border-radius:14px}
+.res-pc-card.pros{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12)}
+.res-pc-card.cons{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.12)}
+.res-pc-title{font-size:12px;font-weight:700;margin-bottom:8px}
+.res-pc-card.pros .res-pc-title{color:#22c55e}
+.res-pc-card.cons .res-pc-title{color:#ef4444}
+.res-pc-item{font-size:11px;color:#999;line-height:1.8;padding-left:14px;position:relative}
+.res-pc-card.pros .res-pc-item::before{content:'✓';position:absolute;left:0;color:#22c55e;font-weight:700}
+.res-pc-card.cons .res-pc-item::before{content:'✗';position:absolute;left:0;color:#ef4444;font-weight:700}
+
+/* 误区 */
+.res-pitfall{padding:16px 18px;border-radius:14px;background:rgba(251,191,36,.06);
+  border:1px solid rgba(251,191,36,.12);margin-bottom:16px}
+.res-pitfall-title{font-size:13px;font-weight:700;color:#fbbf24;margin-bottom:8px}
+.res-pitfall-item{font-size:12px;color:#aaa;line-height:1.8;padding-left:18px;position:relative}
+.res-pitfall-item::before{content:'⚠';position:absolute;left:0}
+
+/* 特征分析 */
+.res-traits{padding:20px;border-radius:16px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);margin-bottom:16px}
+.res-traits-title{font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:14px}
+.trait{margin-bottom:14px}.trait:last-child{margin-bottom:0}
+.trait-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.trait-name{font-size:12px;color:#ccc;font-weight:600}
+.trait-val{font-size:11px;color:#fbbf24;font-weight:700}
+.trait-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.trait-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#fbbf24,#f59e0b);transition:width 1s ease}
+.trait-desc{font-size:11px;color:#777;margin-top:4px;line-height:1.5}
+
+/* 钩子 */
+.res-hook{padding:18px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(245,158,11,.04));
+  border:1px solid rgba(251,191,36,.15);margin-bottom:16px;text-align:center}
+.res-hook-title{font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:8px}
+.res-hook-text{font-size:13px;color:#aaa;line-height:1.7}
+.res-hook-text strong{color:#fff}
+
+/* CTA */
+.res-cta{padding:22px 18px;border-radius:18px;background:#fbbf24;text-align:center;margin-bottom:16px}
+.res-cta-badge{display:inline-block;font-size:10px;font-weight:700;color:#fff;
+  background:#ef4444;padding:3px 10px;border-radius:10px;margin-bottom:10px}
+.res-cta-title{font-size:17px;font-weight:800;color:#0f0f14;margin-bottom:4px}
+.res-cta-sub{font-size:12px;color:rgba(15,15,20,.5);margin-bottom:14px}
+.res-cta-list{text-align:left;margin:0 auto 14px;max-width:260px}
+.res-cta-item{font-size:12px;color:rgba(15,15,20,.7);line-height:2;padding-left:18px;position:relative}
+.res-cta-item::before{content:'✓';position:absolute;left:0;color:#0f0f14;font-weight:700}
+.res-cta-qr{width:100px;height:100px;background:#fff;border-radius:12px;margin:0 auto 10px;
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:#999}
+.res-cta-trust{font-size:11px;color:rgba(15,15,20,.45)}
+
+.res-share{text-align:center;padding:14px 0}
+.res-share-btn{display:inline-block;padding:12px 32px;border-radius:50px;font-size:13px;
+  font-weight:600;color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);
+  cursor:pointer}
+.res-share-btn:active{transform:scale(.96)}
+.res-foot{text-align:center;font-size:12px;color:#555;padding-bottom:20px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="mainPage">
+    <div class="home">
+      <span class="home-badge">🔥 已有 12,847 人测过</span>
+      <h1 class="home-title">你是哪种<br>苦命老板</h1>
+      <p class="home-desc">4 道题，鉴定你的老板类型<br>顺便比比谁的生意更难做 👇</p>
+    </div>
+
+    <div class="questions" id="questions"></div>
+    <div class="submit-wrap">
+      <button class="submit-btn" id="submitBtn">看看我是哪种老板</button>
+    </div>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+const Qs = [
+  { q: "生意不好的时候，你第一反应是？", opts: [
+    { text: "先扛着，省点花就过去了", s: {niu:3} },
+    { text: "赶紧找新路子，不能坐以待毙", s: {dushen:3} },
+    { text: "先分析一下问题出在哪", s: {junshi:3} },
+    { text: "马上行动，换个方向试试", s: {yema:3} }
+  ]},
+  { q: "有个新渠道可能有用但没试过，你会？", opts: [
+    { text: "先看看别人效果怎么样再说", s: {niu:3} },
+    { text: "直接花钱上，试了才知道", s: {dushen:3} },
+    { text: "先研究一下底层逻辑再决定", s: {junshi:3} },
+    { text: "小成本快速测试，不行就撤", s: {yema:3} }
+  ]},
+  { q: "忙了一天，晚上你更容易想什么？", opts: [
+    { text: "今天花了多少、赚了多少、哪里能省", s: {niu:3} },
+    { text: "刚看到一个新机会，明天要不要试试", s: {dushen:3} },
+    { text: "现在的模式有没有优化空间", s: {junshi:3} },
+    { text: "手上几个事情明天先推哪个", s: {yema:3} }
+  ]},
+  { q: "如果只能选一个，你更想要？", opts: [
+    { text: "稳定的老客户持续下单", s: {niu:3} },
+    { text: "一个爆发式增长的机会", s: {dushen:3} },
+    { text: "一套可复制的获客方法论", s: {junshi:3} },
+    { text: "源源不断的新客户找上门", s: {yema:3} }
+  ]}
+];
+
+const TYPES = {
+  niu: { name:"铁牛型老板", code:"OLD COW", emoji:"🐂", pct:34, stars:"★★★★☆",
+    tagline:"全靠自己扛，扛到没脾气",
+    summary:"你是最典型的中国小老板——勤劳、节俭、靠谱。客户信任你是因为你踏实，但你也因为太踏实而不敢迈出舒适区。你的生意不是做不好，是被你自己的习惯锁住了。",
+    pros:["抗压能力极强，别人扛不住的你能扛","成本控制意识好，不乱花钱","老客户忠诚度高，复购率不错"],
+    cons:["获客方式单一，完全依赖老带新","对新事物接受慢，容易错过红利期","舍不得花钱尝试，导致增长停滞"],
+    pitfalls:["以为「省钱 = 赚钱」，其实该花的钱不花才是最大的浪费","觉得「生意不好是大环境的问题」，没想过是自己获客方式落后了","等到竞争对手都跑起来了才开始着急，但这时候成本已经涨了"],
+    traits:[
+      {name:"抗压韧性",val:92,desc:"不到万不得已不求变，扛得住但容易错过时机"},
+      {name:"行动冲劲",val:22,desc:"别人试过有效了才敢上，稳是稳但总慢半拍"},
+      {name:"成本意识",val:88,desc:"每笔钱算得清，但有时候「省」本身就是最大的成本"},
+      {name:"获客多样性",val:15,desc:"客户全靠老带新，没有新渠道，天花板肉眼可见"}
+    ],
+    hookTitle:"铁牛型老板最常见的困局",
+    hookText:"不是不努力，是获客方式太单一。你的客户全靠等。<br>但同行里已经有人用完全不同的方式在找客户了。<br><strong>你不需要改变性格，需要的是多一条路。</strong>"
+  },
+  dushen: { name:"赌神型老板", code:"ALL IN", emoji:"🎲", pct:22, stars:"★★★☆☆",
+    tagline:"什么都敢试，就是没一个稳的",
+    summary:"你是最有行动力的老板类型——看到机会就上，执行力碾压大多数人。但你的问题也恰恰在这里：什么都试过，但没有一个真正跑通的。你不缺勇气，缺的是耐心。",
+    pros:["执行力极强，说干就干不犹豫","对新渠道接受度高，不排斥尝试","心态乐观，不容易被困难打倒"],
+    cons:["缺乏耐心，一个渠道没效果就换下一个","花钱没有章法，回头一看不知道钱花哪了","每个渠道都浅尝辄止，没有一个形成壁垒"],
+    pitfalls:["以为「试得多 = 做得多」，其实 10 个渠道各试一下不如 1 个吃透","看到别人做短视频火了就跟风，没想过适不适合自己","花了很多钱但从来没认真复盘过哪笔有效哪笔浪费"],
+    traits:[
+      {name:"抗压韧性",val:60,desc:"心态不错但容易急，一个没效果就换下一个"},
+      {name:"行动冲劲",val:95,desc:"执行力天花板，说干就干，但方向经常跑偏"},
+      {name:"成本意识",val:35,desc:"花钱不心疼，但经常回头一看不知道钱花哪了"},
+      {name:"获客多样性",val:80,desc:"什么渠道都碰过，但每个都浅尝辄止没吃透"}
+    ],
+    hookTitle:"赌神型老板最常见的困局",
+    hookText:"你不缺行动力，缺的是<strong>一套跑通的方法</strong>。<br>试了 10 种渠道不如把 1 种吃透。<br><strong>你需要的不是更多选择，而是一个确定的方向。</strong>"
+  },
+  junshi: { name:"军师型老板", code:"NO DO", emoji:"🧠", pct:28, stars:"★★★★☆",
+    tagline:"看得清问题，就差临门一脚",
+    summary:"你是最清醒的老板类型——对行业有判断、对成本有概念、对趋势有感知。唯一的问题是：你总在准备，从来不开始。你的竞争对手可能没你聪明，但人家已经跑起来了。",
+    pros:["分析能力强，对市场有清醒认知","成本把控精准，ROI 算得门清","不会盲目跟风，决策质量相对高"],
+    cons:["想太多做太少，永远在「再等等」","追求完美条件，但完美条件永远不会来","知行不合一，道理都懂但就是不动手"],
+    pitfalls:["以为「想清楚再做」更稳妥，其实市场不会等你想清楚","看了很多案例、听了很多课，但从来没有真正下场试过","算来算去觉得「不划算」，但没算过什么都不做的机会成本"],
+    traits:[
+      {name:"抗压韧性",val:75,desc:"沉得住气，但有时候稳过了头就变成了拖"},
+      {name:"行动冲劲",val:18,desc:"从「知道」到「做到」之间，差的不是认知是动手"},
+      {name:"成本意识",val:90,desc:"ROI 算得门清，但算来算去可能错过了窗口期"},
+      {name:"获客多样性",val:45,desc:"知道该拓新客，但总觉得时机没到、条件没齐"}
+    ],
+    hookTitle:"军师型老板最常见的困局",
+    hookText:"你什么都想明白了，就是不动手。<br>你缺的不是认知，是<strong>有人推你一把</strong>。<br><strong>最好的时机不是等来的，是试出来的。</strong>"
+  },
+  yema: { name:"野马型老板", code:"RUSH", emoji:"🐎", pct:16, stars:"★★★☆☆",
+    tagline:"冲劲十足，就缺个方向",
+    summary:"你是最有能量的老板类型——决策快、执行猛、不怕事。但你像一匹没有缰绳的马，跑得飞快但经常跑偏。你最需要的不是更多油门，而是一个方向盘。",
+    pros:["决策果断，不拖泥带水","接受新事物快，学习能力强","精力充沛，能同时推进多件事"],
+    cons:["方向感弱，容易被新机会带跑","精力分散，什么都做但都不深入","容易烦躁，一不顺就想换赛道"],
+    pitfalls:["觉得「忙 = 有效」，但忙和有效是两回事","同时开了三四个项目，每个都半死不活","换过的方向比用过的手机壳还多，但没有一个真正跑通"],
+    traits:[
+      {name:"抗压韧性",val:65,desc:"扛得住压力但容易烦躁，一不顺就想换赛道"},
+      {name:"行动冲劲",val:88,desc:"决策快执行猛，但有时候方向比速度更重要"},
+      {name:"成本意识",val:40,desc:"不是不会算账，是算完了还是忍不住要冲"},
+      {name:"获客多样性",val:70,desc:"接受度高什么都愿意试，但精力分散没聚焦"}
+    ],
+    hookTitle:"野马型老板最常见的困局",
+    hookText:"你最大的优势是执行力，最大的问题是<strong>没有聚焦</strong>。<br>如果有人帮你指个方向，你能跑得比谁都快。<br><strong>你需要的不是更多动力，而是一张路线图。</strong>"
+  }
+};
+
+const allTypes = ['niu','dushen','junshi','yema'];
+let selected = [null,null,null,null];
+
+// render questions
+const qWrap = document.getElementById('questions');
+Qs.forEach((q,qi) => {
+  const block = document.createElement('div');
+  block.className = 'q-block';
+  block.innerHTML = `<div class="q-label"><span class="q-num">Q${qi+1}</span>${q.q}</div>
+    <div class="q-opts" data-qi="${qi}">${q.opts.map((o,oi) =>
+      `<div class="q-opt" data-qi="${qi}" data-oi="${oi}">${o.text}</div>`
+    ).join('')}</div>`;
+  qWrap.appendChild(block);
+});
+
+// option click
+document.querySelectorAll('.q-opt').forEach(opt => {
+  function pick(e) {
+    e.preventDefault();
+    const qi = +opt.dataset.qi, oi = +opt.dataset.oi;
+    if (selected[qi] === oi) return;
+    const wrap = opt.closest('.q-opts');
+    wrap.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selected[qi] = oi;
+    checkReady();
+  }
+  opt.addEventListener('click', pick);
+  opt.addEventListener('touchend', e => { e.preventDefault(); pick(e); });
+});
+
+function checkReady() {
+  const ready = selected.every(s => s !== null);
+  document.getElementById('submitBtn').classList.toggle('active', ready);
+}
+
+// submit
+document.getElementById('submitBtn').addEventListener('click', function() {
+  if (!this.classList.contains('active')) return;
+  const scores = {niu:0,dushen:0,junshi:0,yema:0};
+  selected.forEach((oi, qi) => {
+    const s = Qs[qi].opts[oi].s;
+    for (const k in s) scores[k] += s[k];
+  });
+  const winner = Object.keys(scores).sort((a,b) => scores[b]-scores[a])[0];
+  showResult(winner);
+});
+
+function showResult(typeKey) {
+  document.getElementById('mainPage').style.display = 'none';
+  const res = document.getElementById('result');
+  const t = TYPES[typeKey];
+  res.style.display = 'block';
+
+  const traitRows = t.traits.map(tr =>
+    `<div class="trait">
+      <div class="trait-top"><span class="trait-name">${tr.name}</span><span class="trait-val">${tr.val}%</span></div>
+      <div class="trait-bar"><div class="trait-fill" style="width:0%" data-w="${tr.val}"></div></div>
+      <div class="trait-desc">${tr.desc}</div>
+    </div>`
+  ).join('');
+
+  res.innerHTML = `
+    <div class="res-header">
+      <div class="res-emoji">${t.emoji}</div>
+      <div class="res-code">${t.code}</div>
+      <div class="res-type">${t.name}</div>
+      <div class="res-tagline">"${t.tagline}"</div>
+      <div class="res-stats">
+        <div><div class="res-stat-val">${t.pct}%</div><div class="res-stat-label">同类老板占比</div></div>
+        <div><div class="res-stat-val">${t.stars}</div><div class="res-stat-label">生意难度</div></div>
+      </div>
+    </div>
+    <div class="res-summary">
+      <div class="res-summary-title">📝 综合分析</div>
+      <div class="res-summary-text">${t.summary}</div>
+    </div>
+    <div class="res-traits">
+      <div class="res-traits-title">📊 四维经营 DNA</div>
+      ${traitRows}
+    </div>
+    <div class="res-hook">
+      <div class="res-hook-title">💡 ${t.hookTitle}</div>
+      <div class="res-hook-text">${t.hookText}</div>
+    </div>
+    <div class="res-cta">
+      <div class="res-cta-badge">🏢 官方中小商家扶持活动 · 限时免费</div>
+      <div class="res-cta-title">领取你的专属获客方案</div>
+      <div class="res-cta-sub">根据你的老板类型，定制一份针对性建议</div>
+      <div class="res-cta-list">
+        <div class="res-cta-item">你所在行业的同行成功案例</div>
+        <div class="res-cta-item">2026 行业获客趋势与数据</div>
+        <div class="res-cta-item">适合你这类老板的获客路径规划</div>
+        <div class="res-cta-item">一对一顾问免费答疑</div>
+      </div>
+      <div class="res-cta-qr">二维码</div>
+      <div class="res-cta-trust">✅ 全程免费 · ✅ 不推销 · ✅ 随时可删</div>
+    </div>
+    <div class="res-share"><span class="res-share-btn">📤 分享给朋友看看他是哪型</span></div>
+    <div class="res-foot">已有 12,847 位老板测过</div>
+  `;
+
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(() => {
+    res.querySelectorAll('[data-w]').forEach(bar => { bar.style.width = bar.dataset.w + '%'; });
+  }, 200);
+}
+</script>
+</body>
+</html>
